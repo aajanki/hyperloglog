@@ -29,6 +29,6 @@ count counter = estimate
   where
     alpha = 0.709
     m = fromIntegral (length (registers counter))
-    powers = map ((2 **) . fromIntegral) (elems (registers counter))
+    powers = map ((2 **) . negate . fromIntegral) (elems (registers counter))
     powersum = foldl (+) 0.0 powers
     estimate = round (alpha * m**2 / powersum)
