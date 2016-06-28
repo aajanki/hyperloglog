@@ -1,3 +1,5 @@
+module HyperLogLog where
+
 import Data.Array
 import Data.Int
 import Data.Bits
