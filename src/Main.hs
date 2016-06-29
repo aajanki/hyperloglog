@@ -7,11 +7,11 @@ import Data.List
 main :: IO ()
 main = do putStrLn $ intercalate "\n" (map (show . count) hlls)
   where
-    xs = take 1000 strings
+    xs = take 20000 strings
     hlls = scanl append hllCounter xs
 
 hllCounter :: HLLCounter String
-hllCounter = emptyHLL 8 (\x -> asWord64 (Data.Hash.hash x))
+hllCounter = emptyHLL 12 (asWord64 . Data.Hash.hash)
 
 strings :: [String]
 strings = [x ++ [a] | x <- "" : strings, a <- ['a'..'z']]
