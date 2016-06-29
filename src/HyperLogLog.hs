@@ -3,13 +3,14 @@ module HyperLogLog where
 import Data.Array
 import Data.Int
 import Data.Bits
+import Data.Word
 
-data HLLCounter a = HLLCounter { registers :: Array Int Int8
+data HLLCounter a = HLLCounter { registers :: Array Int Word8
                                , precision :: Int
-                               , hash :: a -> Int64
+                               , hash :: a -> Word64
                                }
 
-emptyHLL :: Int -> (a -> Int64) -> HLLCounter a
+emptyHLL :: Int -> (a -> Word64) -> HLLCounter a
 emptyHLL p h = HLLCounter { registers = listArray (0, (2 ^ p) - 1) (repeat 0), precision = p, hash = h }
 
 append :: HLLCounter a -> a -> HLLCounter a

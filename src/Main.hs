@@ -11,7 +11,7 @@ main = do putStrLn $ intercalate "\n" (map (show . count) hlls)
     hlls = scanl append hllCounter xs
 
 hllCounter :: HLLCounter String
-hllCounter = emptyHLL 8 (\x -> fromIntegral (asWord64 (Data.Hash.hash x)))
+hllCounter = emptyHLL 8 (\x -> asWord64 (Data.Hash.hash x))
 
 strings :: [String]
 strings = [x ++ [a] | x <- "" : strings, a <- ['a'..'z']]
