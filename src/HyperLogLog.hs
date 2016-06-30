@@ -28,10 +28,26 @@ append counter input =
     new = fromIntegral ((min (64 - p) (countLeadingZeros h)) + 1)
 
 count :: HLLCounter a -> Integer
-count counter = estimate
+count counter =
+  -- HLL is biased on small cardinalities, use LinearCounting instead
+  if fromIntegral chll < 2.5*m then clinear else chll
+  where
+    m = fromIntegral (length (registers counter))
+    chll = countHLL counter
+    clinear = countLinear counter
+
+countHLL :: HLLCounter a -> Integer
+countHLL counter = estimate
   where
     alpha = 0.709
     m = fromIntegral (length (registers counter))
     powers = map ((2 **) . negate . fromIntegral) (elems (registers counter))
     powersum = foldl (+) 0.0 powers
     estimate = round (alpha * m**2 / powersum)
+
+countLinear :: HLLCounter a -> Integer
+countLinear counter = round (m * log (m/zeros))
+  where
+    regs = elems (registers counter)
+    m = fromIntegral (length regs)
+    zeros = (fromIntegral . length . (filter (0 ==))) regs
