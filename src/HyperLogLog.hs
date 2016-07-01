@@ -10,9 +10,16 @@ data HLLCounter a = HLLCounter { registers :: Array Int Word8
                                , hash :: a -> Word64
                                }
 
+-- Initialize a HyperLogLog counter object
 emptyHLL :: Int -> (a -> Word64) -> HLLCounter a
-emptyHLL p h = HLLCounter { registers = listArray (0, (2 ^ p) - 1) (repeat 0), precision = p, hash = h }
+emptyHLL p h = HLLCounter {
+  registers = listArray (0, (2 ^ p) - 1) (repeat 0)
+  , precision = p
+  , hash = h
+  }
 
+-- Append a new (potentially duplicated) element and increase the
+-- counter correspondingly
 append :: HLLCounter a -> a -> HLLCounter a
 append counter input =
   if (new <= old) then counter
@@ -27,6 +34,7 @@ append counter input =
     old = (registers counter) ! bucket
     new = fromIntegral ((min (64 - p) (countLeadingZeros h)) + 1)
 
+-- Return an estimate of the number of distinct elemets appended so far
 count :: HLLCounter a -> Integer
 count counter =
   -- HLL is biased on small cardinalities, use LinearCounting instead
@@ -36,6 +44,7 @@ count counter =
     chll = countHLL counter
     clinear = countLinear counter
 
+-- Estimate the cardinality using the HLL estimator
 countHLL :: HLLCounter a -> Integer
 countHLL counter = estimate
   where
@@ -45,6 +54,7 @@ countHLL counter = estimate
     powersum = foldl (+) 0.0 powers
     estimate = round (alpha * m**2 / powersum)
 
+-- Estimate the cardinality using linear counting
 countLinear :: HLLCounter a -> Integer
 countLinear counter = round (m * log (m/zeros))
   where
